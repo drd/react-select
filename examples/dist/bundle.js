@@ -64,6 +64,7 @@ var Async = _react2['default'].createClass({
 		loadingPlaceholder: _react2['default'].PropTypes.string, // replaces the placeholder while options are loading
 		minimumInput: _react2['default'].PropTypes.number, // the minimum number of characters that trigger loadOptions
 		noResultsText: _react2['default'].PropTypes.string, // placeholder displayed when there are no matching search results (shared with Select)
+		onInputChange: _react2['default'].PropTypes.func, // onInputChange handler: function (inputValue) {}
 		placeholder: stringOrNode, // field placeholder, displayed when there's no value (shared with Select)
 		searchPromptText: _react2['default'].PropTypes.string, // label to prompt for search input
 		searchingText: _react2['default'].PropTypes.string },
@@ -144,6 +145,8 @@ var Async = _react2['default'].createClass({
 		return thenPromise(this.props.loadOptions(input, responseHandler), responseHandler);
 	},
 	render: function render() {
+		var _this2 = this;
+
 		var noResultsText = this.props.noResultsText;
 		var _state = this.state;
 		var isLoading = _state.isLoading;
@@ -159,7 +162,12 @@ var Async = _react2['default'].createClass({
 			ref: 'select',
 			isLoading: isLoading,
 			noResultsText: noResultsText,
-			onInputChange: this.loadOptions,
+			onInputChange: function (inputValue) {
+				if (_this2.props.onInputChange) {
+					_this2.props.onInputChange(inputValue);
+				}
+				return _this2.loadOptions(inputValue);
+			},
 			options: options,
 			placeholder: placeholder
 		}));
@@ -1171,10 +1179,14 @@ var Select = _react2['default'].createClass({
 		var _this5 = this;
 
 		if (!this.props.name) return;
-		var value = valueArray.map(function (i) {
-			return stringifyValue(i[_this5.props.valueKey]);
-		}).join(this.props.delimiter);
-		return _react2['default'].createElement('input', { type: 'hidden', ref: 'value', name: this.props.name, value: value, disabled: this.props.disabled });
+		return valueArray.map(function (item, index) {
+			return _react2['default'].createElement('input', { key: 'hidden.' + index,
+				type: 'hidden',
+				ref: 'value' + index,
+				name: _this5.props.name,
+				value: stringifyValue(item[_this5.props.valueKey]),
+				disabled: _this5.props.disabled });
+		});
 	},
 
 	getFocusableOption: function getFocusableOption(selectedOption) {
